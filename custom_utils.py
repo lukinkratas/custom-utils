@@ -25,20 +25,24 @@ def track_args(func):
     
     return wrapper
 
-def track_time(func, n=1):
+def track_time_performance(n=1):
 
-    @wraps(func)
-    def wrapper(*args, **kwargs):
+    def decorator(func):
 
-        print(f"{func.__name__} running {n}time(s) started.")
-        start_time = perf_counter()
+        @wraps(func)
+        def wrapper(*args, **kwargs):
 
-        for _ in range(n):
-            result = func(*args, **kwargs)
+            print(f"{func.__name__} running {n}time(s) started.")
+            start_time = perf_counter()
 
-        elapsed_time = perf_counter() - start_time
-        print(f"{func.__name__} finished, took: {elapsed_time:0.4f} seconds.")
+            for _ in range(n):
+                result = func(*args, **kwargs)
 
-        return result
+            elapsed_time = perf_counter() - start_time
+            print(f"{func.__name__} finished, took: {elapsed_time:0.8f} seconds.")
+
+            return result
+        
+        return wrapper
     
-    return wrapper
+    return decorator
