@@ -1,3 +1,4 @@
+import pandas as pd
 from functools import wraps
 import os
 import pwd
@@ -6,6 +7,8 @@ from time import perf_counter
 import boto3
 from botocore.exceptions import ClientError
 from io import BytesIO
+
+s3_client = boto3.client('s3')
 
 def get_username():
     return pwd.getpwuid(os.getuid())[0]
@@ -49,8 +52,6 @@ def track_time_performance(n=1):
 
 def s3_put_object(bytes, bucket:str, key:str):
 
-    s3_client = boto3.client('s3')
-
     try:
         response = s3_client.put_object(
             Body=bytes,
@@ -66,12 +67,42 @@ def s3_put_object(bytes, bucket:str, key:str):
 
 def s3_put_df(df, bucket:str, key:str, **kwargs):
 
-    # s3_filesystem = S3FileSystem()
-
-    # with s3_filesystem.open(f's3://{bucket}/{key}', 'w') as s3_file:
-    #     df.to_csv(s3_file, index=False)
-
     bytes = BytesIO()
     df.to_parquet(bytes, **kwargs)
     bytes.seek(0)
     return s3_put_object(bytes.getvalue(), bucket, key)
+
+def s3_list_objects(bucket:str, key_prefix:str=''):
+    
+    try:
+        response = s3_client.list_objects_v2(
+            Bucket=bucket,
+            Prefix=key_prefix
+        )
+
+    except ClientError as e:
+        print(e)
+        return False
+    
+    return [content.get('Key') for content in response.get('Contents')]
+
+def s3_get_object(bucket:str, key:str):
+    
+    try:
+        response = s3_client.get_object(
+            Bucket=bucket,
+            Key=key
+        )
+
+    except ClientError as e:
+        print(e)
+        return False
+    
+    return response
+
+def s3_read_df(bucket:str, key:str, **kwargs):
+
+    response = s3_get_object(bucket, key)
+    bytes = BytesIO(response['Body'].read())
+    bytes.seek(0)
+    return pd.read_csv(bytes, **kwargs)
