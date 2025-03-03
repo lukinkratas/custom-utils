@@ -50,13 +50,13 @@ def track_time_performance(n=1):
     
     return decorator
 
-def s3_put_object(bytes, bucket:str, key:str):
+def s3_put_object(bytes, bucket:str, key_name:str):
 
     try:
         response = s3_client.put_object(
             Body=bytes,
             Bucket=bucket,
-            Key=key
+            Key=key_name
         )
 
     except ClientError as e:
@@ -65,18 +65,18 @@ def s3_put_object(bytes, bucket:str, key:str):
     
     return response
 
-def s3_put_df(df, bucket:str, key:str, **kwargs):
+def s3_put_df(df:pd.DataFrame, bucket_name:str, key_name:str, **kwargs):
 
     bytes = BytesIO()
     df.to_parquet(bytes, **kwargs)
     bytes.seek(0)
-    return s3_put_object(bytes.getvalue(), bucket, key)
+    return s3_put_object(bytes.getvalue(), bucket_name, key_name)
 
-def s3_list_objects(bucket:str, key_prefix:str=''):
+def s3_list_objects(bucket_name:str, key_prefix:str=''):
     
     try:
         response = s3_client.list_objects_v2(
-            Bucket=bucket,
+            Bucket=bucket_name,
             Prefix=key_prefix
         )
 
@@ -86,12 +86,12 @@ def s3_list_objects(bucket:str, key_prefix:str=''):
     
     return [content.get('Key') for content in response.get('Contents')]
 
-def s3_get_object(bucket:str, key:str):
+def s3_get_object(bucket_name:str, key_name:str):
     
     try:
         response = s3_client.get_object(
-            Bucket=bucket,
-            Key=key
+            Bucket=bucket_name,
+            Key=key_name
         )
 
     except ClientError as e:
@@ -100,9 +100,9 @@ def s3_get_object(bucket:str, key:str):
     
     return response
 
-def s3_read_df(bucket:str, key:str, **kwargs):
+def s3_read_df(bucket_name:str, key_name:str, **kwargs) -> pd.DataFrame:
 
-    response = s3_get_object(bucket, key)
+    response = s3_get_object(bucket_name, key_name)
     bytes = BytesIO(response['Body'].read())
     bytes.seek(0)
     return pd.read_csv(bytes, **kwargs)
