@@ -47,13 +47,13 @@ def track_time_performance(n=1):
     
     return decorator
 
-def s3_put_object(file_bytes, bucket:str, key:str):
+def s3_put_object(bytes, bucket:str, key:str):
 
     s3_client = boto3.client('s3')
 
     try:
         response = s3_client.put_object(
-            Body=file_bytes,
+            Body=bytes,
             Bucket=bucket,
             Key=key
         )
@@ -71,7 +71,7 @@ def s3_put_df(df, bucket:str, key:str, **kwargs):
     # with s3_filesystem.open(f's3://{bucket}/{key}', 'w') as s3_file:
     #     df.to_csv(s3_file, index=False)
 
-    buffer = BytesIO()
-    df.to_parquet(buffer, **kwargs)
-    buffer.seek(0)
-    return s3_put_object(buffer.getvalue(), bucket, key)
+    bytes = BytesIO()
+    df.to_parquet(bytes, **kwargs)
+    bytes.seek(0)
+    return s3_put_object(bytes.getvalue(), bucket, key)
