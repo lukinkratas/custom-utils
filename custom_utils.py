@@ -20,12 +20,12 @@ def track_args(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         print(
-            f'{datetime.now()} {get_username()} called {func.__name__}\n  with {args=}\n  and {kwargs=}.'
+            f'{datetime.now()} {get_username()} called {func.__name__}.\n  with {args=}\n  and {kwargs=}'
         )
 
         result = func(*args, **kwargs)
 
-        print(f'{func.__name__} finished successfully.')
+        print(f'{func.__name__} finished successfully.\n  with {result=}')
 
         return result
 
