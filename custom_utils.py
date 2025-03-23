@@ -25,7 +25,7 @@ def track_args(func):
 
         result = func(*args, **kwargs)
 
-        print(f'{func.__name__} finished successfully.\n  with {result=}')
+        print(f'{func.__name__} finished.\n  with {result=}')
 
         return result
 
