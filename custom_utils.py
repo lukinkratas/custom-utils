@@ -52,9 +52,9 @@ def track_time_performance(n=1):
     return decorator
 
 
-def s3_put_object(bytes, bucket: str, key_name: str):
+def s3_put_object(bytes, bucket: str, key: str):
     try:
-        response = s3_client.put_object(Body=bytes, Bucket=bucket, Key=key_name)
+        response = s3_client.put_object(Body=bytes, Bucket=bucket, Key=key)
 
     except ClientError as e:
         print(e)
@@ -63,16 +63,16 @@ def s3_put_object(bytes, bucket: str, key_name: str):
     return response
 
 
-def s3_put_df(df: pd.DataFrame, bucket_name: str, key_name: str, **kwargs):
+def s3_put_df(df: pd.DataFrame, bucket: str, key: str, **kwargs):
     bytes = BytesIO()
     df.to_parquet(bytes, **kwargs)
     bytes.seek(0)
-    return s3_put_object(bytes.getvalue(), bucket_name, key_name)
+    return s3_put_object(bytes.getvalue(), bucket=bucket, key=key)
 
 
-def s3_list_objects(bucket_name: str, key_prefix: str = ''):
+def s3_list_objects(bucket: str, key_prefix: str = ''):
     try:
-        response = s3_client.list_objects_v2(Bucket=bucket_name, Prefix=key_prefix)
+        response = s3_client.list_objects_v2(Bucket=bucket, Prefix=key_prefix)
 
     except ClientError as e:
         print(e)
@@ -81,9 +81,9 @@ def s3_list_objects(bucket_name: str, key_prefix: str = ''):
     return [content.get('Key') for content in response.get('Contents')]
 
 
-def s3_get_object(bucket_name: str, key_name: str):
+def s3_get_object(bucket: str, key: str):
     try:
-        response = s3_client.get_object(Bucket=bucket_name, Key=key_name)
+        response = s3_client.get_object(Bucket=bucket, Key=key)
 
     except ClientError as e:
         print(e)
@@ -92,8 +92,8 @@ def s3_get_object(bucket_name: str, key_name: str):
     return response
 
 
-def s3_read_df(bucket_name: str, key_name: str, **kwargs) -> pd.DataFrame:
-    response = s3_get_object(bucket_name, key_name)
+def s3_read_df(bucket: str, key: str, **kwargs) -> pd.DataFrame:
+    response = s3_get_object(bucket, key)
     bytes = BytesIO(response['Body'].read())
     bytes.seek(0)
     return pd.read_csv(bytes, **kwargs)
