@@ -65,7 +65,7 @@ def s3_put_object(bytes, bucket: str, key: str):
 
 def s3_put_df(df: pd.DataFrame, bucket: str, key: str, **kwargs):
     bytes = BytesIO()
-    df.to_parquet(bytes, **kwargs)
+    df.to_csv(bytes, **kwargs)
     bytes.seek(0)
     return s3_put_object(bytes.getvalue(), bucket=bucket, key=key)
 
