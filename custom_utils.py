@@ -19,14 +19,11 @@ def get_username() -> str:
 def track_args(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
-        print(f'{datetime.now()} {get_username()} called {func.__name__}.')
-        print(f'  with {args=}')
-        print(f'  and {kwargs=}')
+        print(f'{datetime.now()} {get_username()} called {func.__name__}.\n  {args=}\n  {kwargs=}')
 
         result = func(*args, **kwargs)
 
-        print(f'{func.__name__} finished.')
-        print(f'  with {result=}')
+        print(f'{func.__name__} finished.\n  {result=}')
 
         return result
 
